@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>easyA5print - Reorder A4 documents to print them in two-sided, ordered manner</title>
+  <meta name="description"
+    content="Reorder A4 documents to print in a two sided format. Drop your document and select the pages to reorder.">
+
+  <!-- Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="easyA5print_style.css">
+
+  <!-- PDF-Lib: Local with CDN fallback -->
+  <script src="easyA5print_pdf-lib.min.js"></script>
+  <script>
+    if (typeof PDFLib === 'undefined') {
+      document.write('<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"><\/script>');
+    }
+  </script>
+</head>
+
+<body>
+  <div class="app-background"></div>
+
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-badge">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 6 2 18 2 18 9" />
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+            <rect x="6" y="14" width="12" height="8" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">easyA5print</h1>
+          <p class="brand-subtitle">REORDER YOUR DOCUMENT</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="main-container">
+
+      <!-- Hero Intro -->
+      <section class="intro-section">
+        <h2 class="hero-headline">Reorder A4 documents optimized for 2-up printing</h2>
+        <p class="hero-description">
+          Drop your document and select the pages to reorder.
+        </p>
+      </section>
+
+      <!-- Upload Dropzone Card -->
+      <div class="card drop-card" id="dropZone">
+        <input type="file" id="fileInput" accept="application/pdf" class="file-input" />
+        <div class="drop-content" id="dropContent">
+          <div class="drop-icon-wrapper">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="12" y1="18" x2="12" y2="12" />
+              <polyline points="9 15 12 12 15 15" />
+            </svg>
+          </div>
+          <h3 class="drop-title">Choose your PDF or drag & drop here</h3>
+          <p class="drop-hint">Works with any A4 lecture notes or document</p>
+          <button type="button" class="btn btn-secondary" id="browseBtn">Select PDF File</button>
+        </div>
+
+        <!-- File Loaded Bar -->
+        <div class="file-loaded-bar" id="fileLoadedBar" style="display: none;">
+          <div class="file-info">
+            <div class="file-icon">PDF</div>
+            <div>
+              <p class="file-name" id="fileName">document.pdf</p>
+              <p class="file-meta" id="fileMeta">12 pages • 1.4 MB</p>
+            </div>
+          </div>
+          <button type="button" class="btn-icon" id="changeFileBtn" title="Choose a different PDF">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Settings & Controls Section (Visible after file loaded) -->
+      <div class="card config-card" id="configCard" style="display: none;">
+        <h3 class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="21" x2="4" y2="14" />
+            <line x1="4" y1="10" x2="4" y2="3" />
+            <line x1="12" y1="21" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12" y2="3" />
+            <line x1="20" y1="21" x2="20" y2="16" />
+            <line x1="20" y1="12" x2="20" y2="3" />
+            <line x1="1" y1="14" x2="7" y2="14" />
+            <line x1="9" y1="8" x2="15" y2="8" />
+            <line x1="17" y1="16" x2="23" y2="16" />
+          </svg>
+          Page range configuration
+        </h3>
+
+        <div class="range-grid">
+          <div class="input-group">
+            <label for="startPageInput">Start page</label>
+            <div class="number-stepper">
+              <button type="button" class="stepper-btn" id="startMinusBtn">-</button>
+              <input type="number" id="startPageInput" min="1" value="1" />
+              <button type="button" class="stepper-btn" id="startPlusBtn">+</button>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="endPageInput">End page</label>
+            <div class="number-stepper">
+              <button type="button" class="stepper-btn" id="endMinusBtn">-</button>
+              <input type="number" id="endPageInput" min="1" value="1" />
+              <button type="button" class="stepper-btn" id="endPlusBtn">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="preset-row">
+          <span class="preset-label">Quick select:</span>
+          <button type="button" class="chip-btn" id="allPagesChip">All Pages</button>
+        </div>
+
+        <!-- Live Math Breakdown Badge -->
+        <div class="math-summary-box" id="mathSummary">
+          <div class="summary-metric">
+            <span class="metric-value" id="metricSelected">0</span>
+            <span class="metric-label">Pages Selected</span>
+          </div>
+          <div class="summary-divider"></div>
+          <div class="summary-metric">
+            <span class="metric-value" id="metricSheets">0</span>
+            <span class="metric-label">A4 Sheets Needed</span>
+          </div>
+          <div class="summary-divider"></div>
+          <div class="summary-metric">
+            <span class="metric-value" id="metricPadding">No</span>
+            <span class="metric-label">Blank Padding</span>
+          </div>
+        </div>
+
+        <!-- Generate Button -->
+        <div class="action-row">
+          <button type="button" class="btn btn-primary btn-large" id="processBtn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 6 2 18 2 18 9" />
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+              <rect x="6" y="14" width="12" height="8" />
+            </svg>
+            Generate and download reordered document
+          </button>
+        </div>
+
+        <!-- Progress Indicator -->
+        <div class="progress-bar-container" id="progressContainer" style="display: none;">
+          <div class="progress-bar-fill" id="progressBar"></div>
+          <p class="progress-text" id="progressText">Processing pages...</p>
+        </div>
+      </div>
+
+      <!-- Live Sheet Layout Preview -->
+      <div class="card preview-card" id="previewCard" style="display: none;">
+        <div class="preview-header">
+          <h3 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+            </svg>
+            Sheet layout preview
+          </h3>
+          <span class="preview-badge" id="sheetCountBadge">0 Sheets</span>
+        </div>
+
+        <div class="sheets-grid" id="sheetsGrid">
+          <!-- Populated by JavaScript -->
+        </div>
+
+        <!-- Visual Stacking Guide -->
+        <div class="stacking-guide">
+          <h4 class="guide-title">How to assemble your document:</h4>
+          <div class="guide-steps">
+            <div class="guide-step">
+              <span class="step-num">1</span>
+              <p>Print all sheets at 100% scale (simplex / 1-sided).</p>
+            </div>
+            <div class="guide-step">
+              <span class="step-num">2</span>
+              <p>Cut the entire paper stack in half along the dashed center mark.</p>
+            </div>
+            <div class="guide-step">
+              <span class="step-num">3</span>
+              <p>Stack the Left Pile on top of the Right Pile.</p>
+            </div>
+            <div class="guide-step">
+              <span class="step-num">4</span>
+              <p>Finished! All pages are now in 1, 2, 3... sequential order.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Success Card (When PDF Ready) -->
+      <div class="card success-card" id="successCard" style="display: none;">
+        <div class="success-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="success-title">Your reordered document is ready!</h3>
+          <p class="success-subtitle" id="successSubtitle">document_reordered.pdf</p>
+        </div>
+        <button type="button" class="btn btn-secondary" id="downloadAgainBtn">Download again</button>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="easyA5print_app.js"></script>
+</body>
+
+</html>
