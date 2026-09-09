@@ -10,12 +10,12 @@ Drop your document and select the pages to reorder. When printed and cut in half
 
 1. Double-click `easyA5print.html` to open it in any browser.
 2. Select your document.
-3. Set your **Start Page** and **End Page**.
+3. Set your **Start page** and **End page**.
 4. Click **"Generate and download reordered document"**.
 
 ---
 
-## How to Assemble Your Document
+## How to assemble the document
 
 1. Print all sheets at 100% scale (simplex / 1-sided).
 2. Cut the entire paper stack in half along the dashed center mark.
